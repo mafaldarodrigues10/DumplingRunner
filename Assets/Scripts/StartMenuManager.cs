@@ -63,4 +63,18 @@ public class StartMenuManager : MonoBehaviour
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
     }
+    
+    public GameObject scenarioMenu;
+
+    public void OpenScenarioSelectionMenu()
+    {
+        if (scenarioMenu != null)
+            scenarioMenu.SetActive(true);
+    }
+
+    public void CloseScenarioSelectionMenu()
+    {
+        if (scenarioMenu != null)
+            scenarioMenu.SetActive(false);
+    }
 }

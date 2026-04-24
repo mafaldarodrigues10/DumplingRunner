@@ -110,4 +110,12 @@ public class ScenarioManager : MonoBehaviour
         if (selectNightButton != null)
             selectNightButton.GetComponentInChildren<TextMeshProUGUI>().text = selected == 2 ? "Selected" : "Select";
     }
+
+    public GameObject scenarioMenu;
+
+    public void CloseScenarioSelectionMenu()
+    {
+        scenarioMenu.SetActive(false);
+    }
+    
 }
