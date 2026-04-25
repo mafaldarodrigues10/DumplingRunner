@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: bccaf1aae26c14d588296690526a43a5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - musicSource: {instanceID: 0}
+  - sfxSource: {instanceID: 0}
+  - backgroundMusic: {fileID: 8300000, guid: e3bd918d154324e45b5fa110a074c6f0, type: 3}
+  - coinSound: {instanceID: 0}
+  - hitSound: {instanceID: 0}
+  - buttonClickSound: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

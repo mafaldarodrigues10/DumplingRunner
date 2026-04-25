@@ -28,8 +28,11 @@ public class ScoreManager : MonoBehaviour
         coinText.text = "Coins: " + runCoins;
     }
 
-    public void AddCoin(int amount)
+    public void AddCoin(int value)
     {
-        runCoins += amount;
+        runCoins += value;
+
+        if (coinText != null)
+            coinText.text = "Coins: " + runCoins;
     }
 }

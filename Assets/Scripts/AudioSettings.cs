@@ -8,27 +8,39 @@ public class AudioSettings : MonoBehaviour
 
     void Start()
     {
-        float volume = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
         bool sfxOn = PlayerPrefs.GetInt("SfxOn", 1) == 1;
 
-        musicSlider.value = volume;
-        sfxToggle.isOn = sfxOn;
+        if (musicSlider != null)
+        {
+            musicSlider.value = musicVolume;
+            musicSlider.onValueChanged.RemoveAllListeners();
+            musicSlider.onValueChanged.AddListener(OnMusicChanged);
+        }
 
-        SetVolume(volume);
-        ApplySfx(sfxOn);
+        if (sfxToggle != null)
+        {
+            sfxToggle.isOn = sfxOn;
+            sfxToggle.onValueChanged.RemoveAllListeners();
+            sfxToggle.onValueChanged.AddListener(OnSfxChanged);
+        }
+
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.SetMusicVolume(musicVolume);
+            AudioManager.instance.SetSfxEnabled(sfxOn);
+        }
     }
 
-    public void SetVolume(float value)
+    public void OnMusicChanged(float value)
     {
-        PlayerPrefs.SetFloat("MusicVolume", value);
-        PlayerPrefs.Save();
-
-        AudioListener.volume = value;
+        if (AudioManager.instance != null)
+            AudioManager.instance.SetMusicVolume(value);
     }
 
-    public void ApplySfx(bool isOn)
+    public void OnSfxChanged(bool isOn)
     {
-        PlayerPrefs.SetInt("SfxOn", isOn ? 1 : 0);
-        PlayerPrefs.Save();
+        if (AudioManager.instance != null)
+            AudioManager.instance.SetSfxEnabled(isOn);
     }
 }

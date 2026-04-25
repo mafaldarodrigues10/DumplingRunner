@@ -13,7 +13,7 @@ public class SettingsMenu : MonoBehaviour
 
     void Start()
     {
-        musicOn = PlayerPrefs.GetInt("MusicOn", 1) == 1;
+        musicOn = PlayerPrefs.GetFloat("MusicVolume", 1f) > 0f;
         sfxOn = PlayerPrefs.GetInt("SfxOn", 1) == 1;
 
         if (settingsPanel != null)
@@ -37,18 +37,12 @@ public class SettingsMenu : MonoBehaviour
     public void ToggleMusic()
     {
         musicOn = !musicOn;
-        PlayerPrefs.SetInt("MusicOn", musicOn ? 1 : 0);
-        PlayerPrefs.Save();
-
         ApplySettings();
     }
 
     public void ToggleSfx()
     {
         sfxOn = !sfxOn;
-        PlayerPrefs.SetInt("SfxOn", sfxOn ? 1 : 0);
-        PlayerPrefs.Save();
-
         ApplySettings();
     }
 
@@ -60,6 +54,10 @@ public class SettingsMenu : MonoBehaviour
         if (sfxButtonText != null)
             sfxButtonText.text = sfxOn ? "SFX: ON" : "SFX: OFF";
 
-        AudioListener.volume = musicOn ? 1f : 0f;
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.SetMusicEnabled(musicOn);
+            AudioManager.instance.SetSfxEnabled(sfxOn);
+        }
     }
 }

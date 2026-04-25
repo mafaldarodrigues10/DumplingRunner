@@ -39,6 +39,9 @@ public class StartMenuManager : MonoBehaviour
 
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+        
+        if (scenarioMenu != null)
+        scenarioMenu.SetActive(false);
     }
 
     public void StartGame()

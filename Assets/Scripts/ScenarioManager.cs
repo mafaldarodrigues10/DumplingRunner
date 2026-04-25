@@ -11,27 +11,47 @@ public class ScenarioManager : MonoBehaviour
     public int sunsetPrice = 100;
     public int nightPrice = 200;
 
+    public int sunsetScore = 200;
+    public int nightScore = 300;
+
+    private int currentScenario = -1;
+
+    [Header("Sunset UI")]
     public Button buySunsetButton;
-    public Button selectSunsetButton;
     public TextMeshProUGUI buySunsetText;
 
+    [Header("Night UI")]
     public Button buyNightButton;
-    public Button selectNightButton;
     public TextMeshProUGUI buyNightText;
+
+    [Header("Menu")]
+    public GameObject scenarioMenu;
 
     void Start()
     {
         PlayerPrefs.SetInt("DayUnlocked", 1);
+
+        ApplyScenario(0);
         UpdateUI();
-        ApplySelectedSky();
     }
 
-    public void SelectDay()
+    void Update()
     {
-        PlayerPrefs.SetInt("SelectedScenario", 0);
-        PlayerPrefs.Save();
-        ApplySelectedSky();
-        UpdateUI();
+        if (ScoreManager.instance == null) return;
+
+        int score = ScoreManager.instance.score;
+        int scenarioToUse = 0;
+
+        if (score >= nightScore && PlayerPrefs.GetInt("NightUnlocked", 0) == 1)
+            scenarioToUse = 2;
+        else if (score >= sunsetScore && PlayerPrefs.GetInt("SunsetUnlocked", 0) == 1)
+            scenarioToUse = 1;
+
+        if (scenarioToUse != currentScenario)
+        {
+            currentScenario = scenarioToUse;
+            ApplyScenario(scenarioToUse);
+        }
     }
 
     public void BuySunset()
@@ -39,31 +59,9 @@ public class ScenarioManager : MonoBehaviour
         BuyScenario("SunsetUnlocked", sunsetPrice);
     }
 
-    public void SelectSunset()
-    {
-        if (PlayerPrefs.GetInt("SunsetUnlocked", 0) == 1)
-        {
-            PlayerPrefs.SetInt("SelectedScenario", 1);
-            PlayerPrefs.Save();
-            ApplySelectedSky();
-            UpdateUI();
-        }
-    }
-
     public void BuyNight()
     {
         BuyScenario("NightUnlocked", nightPrice);
-    }
-
-    public void SelectNight()
-    {
-        if (PlayerPrefs.GetInt("NightUnlocked", 0) == 1)
-        {
-            PlayerPrefs.SetInt("SelectedScenario", 2);
-            PlayerPrefs.Save();
-            ApplySelectedSky();
-            UpdateUI();
-        }
     }
 
     void BuyScenario(string unlockKey, int price)
@@ -80,42 +78,75 @@ public class ScenarioManager : MonoBehaviour
         UpdateUI();
     }
 
-    void ApplySelectedSky()
+    void ApplyScenario(int scenario)
     {
-        int selected = PlayerPrefs.GetInt("SelectedScenario", 0);
+        PlayerPrefs.SetInt("CurrentRunScenario", scenario);
 
-        if (selected == 0 && daySky != null) RenderSettings.skybox = daySky;
-        if (selected == 1 && sunsetSky != null) RenderSettings.skybox = sunsetSky;
-        if (selected == 2 && nightSky != null) RenderSettings.skybox = nightSky;
+        if (scenario == 0 && daySky != null)
+            RenderSettings.skybox = daySky;
+
+        if (scenario == 1 && sunsetSky != null)
+            RenderSettings.skybox = sunsetSky;
+
+        if (scenario == 2 && nightSky != null)
+            RenderSettings.skybox = nightSky;
     }
 
     void UpdateUI()
+{
+    bool sunsetUnlocked = PlayerPrefs.GetInt("SunsetUnlocked", 0) == 1;
+    bool nightUnlocked = PlayerPrefs.GetInt("NightUnlocked", 0) == 1;
+
+    // SUNSET
+    if (buySunsetButton != null)
     {
-        int selected = PlayerPrefs.GetInt("SelectedScenario", 0);
+        var text = buySunsetButton.GetComponentInChildren<TextMeshProUGUI>();
 
-        bool sunsetUnlocked = PlayerPrefs.GetInt("SunsetUnlocked", 0) == 1;
-        bool nightUnlocked = PlayerPrefs.GetInt("NightUnlocked", 0) == 1;
-
-        if (buySunsetButton != null) buySunsetButton.gameObject.SetActive(!sunsetUnlocked);
-        if (selectSunsetButton != null) selectSunsetButton.gameObject.SetActive(sunsetUnlocked);
-        if (buySunsetText != null) buySunsetText.text = sunsetPrice + " coins";
-
-        if (buyNightButton != null) buyNightButton.gameObject.SetActive(!nightUnlocked);
-        if (selectNightButton != null) selectNightButton.gameObject.SetActive(nightUnlocked);
-        if (buyNightText != null) buyNightText.text = nightPrice + " coins";
-
-        if (selectSunsetButton != null)
-            selectSunsetButton.GetComponentInChildren<TextMeshProUGUI>().text = selected == 1 ? "Selected" : "Select";
-
-        if (selectNightButton != null)
-            selectNightButton.GetComponentInChildren<TextMeshProUGUI>().text = selected == 2 ? "Selected" : "Select";
+        if (sunsetUnlocked)
+        {
+            if (text != null) text.text = "Unlocked";
+            buySunsetButton.interactable = false;
+        }
+        else
+        {
+            if (text != null) text.text = sunsetPrice + " coins";
+            buySunsetButton.interactable = true;
+        }
     }
 
-    public GameObject scenarioMenu;
+    // NIGHT
+    if (buyNightButton != null)
+    {
+        var text = buyNightButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (nightUnlocked)
+        {
+            if (text != null) text.text = "Unlocked";
+            buyNightButton.interactable = false;
+        }
+        else
+        {
+            if (text != null) text.text = nightPrice + " coins";
+            buyNightButton.interactable = true;
+        }
+    }
+}
 
     public void CloseScenarioSelectionMenu()
     {
-        scenarioMenu.SetActive(false);
+        if (scenarioMenu != null)
+            scenarioMenu.SetActive(false);
     }
-    
+
+    public void ResetScenarios()
+    {
+        PlayerPrefs.DeleteKey("SunsetUnlocked");
+        PlayerPrefs.DeleteKey("NightUnlocked");
+        PlayerPrefs.DeleteKey("SelectedScenario");
+        PlayerPrefs.DeleteKey("CurrentRunScenario");
+
+        PlayerPrefs.Save();
+
+        Debug.Log("Scenarios reset!");
+    }
 }

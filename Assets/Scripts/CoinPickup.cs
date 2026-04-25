@@ -6,17 +6,11 @@ public class CoinPickup : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Coin trigger com: " + other.gameObject.name);
-
-        if (other.gameObject.name.Contains("Player"))
+       if (other.CompareTag("Player"))
         {
-            Debug.Log("Player apanhou moeda");
-
-            if (ScoreManager.instance != null)
-            {
-                ScoreManager.instance.AddCoin(value);
-            }
-
+            ScoreManager.instance.AddCoin(value);
+            if (AudioManager.instance != null)
+            AudioManager.instance.PlayCoin();
             Destroy(gameObject);
         }
     }

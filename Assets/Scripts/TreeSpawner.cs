@@ -9,29 +9,55 @@ public class TreeSpawner : MonoBehaviour
     public Transform player;
 
     public float spawnZ = 0f;
-    public float spacing = 10f;
-    public float spawnAheadDistance = 50f;
+    public float spacing = 14f;
+    public float spawnAheadDistance = 80f;
 
-    public float leftX = -6f;
-    public float rightX = 6f;
+    public float leftX = -8f;
+    public float rightX = 8f;
 
     public float treeY = 0.8f;
     public float barracaY = 0.8f;
     public float lightY = 0f;
 
+    private int currentScenario = -1;
+
     void Start()
     {
-        for (int i = 0; i < 10; i++)
-        {
-            SpawnProps();
-        }
+        currentScenario = PlayerPrefs.GetInt("CurrentRunScenario", 0);
+        ResetProps();
     }
 
     void Update()
     {
         if (player == null) return;
 
+        int scenario = PlayerPrefs.GetInt("CurrentRunScenario", 0);
+
+        // se mudar cenário → limpa e recria
+        if (scenario != currentScenario)
+        {
+            currentScenario = scenario;
+            ResetProps();
+        }
+
+        // spawn contínuo
         if (player.position.z + spawnAheadDistance > spawnZ)
+        {
+            SpawnProps();
+        }
+    }
+
+    void ResetProps()
+    {
+        // apagar tudo o que já foi spawnado
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        spawnZ = player != null ? player.position.z + 30f : 0f;
+
+        for (int i = 0; i < 8; i++)
         {
             SpawnProps();
         }
@@ -39,21 +65,16 @@ public class TreeSpawner : MonoBehaviour
 
     void SpawnProps()
     {
-        int scenario = PlayerPrefs.GetInt("SelectedScenario", 0);
-        // 0 = Day, 1 = Sunset, 2 = Night
-
-        // árvores aparecem em todos
-        SpawnTreePair();
-
-        if (scenario == 1)
+        if (currentScenario == 0)
         {
-            // Sunset: barracas
+            SpawnTreePair();
+        }
+        else if (currentScenario == 1)
+        {
             SpawnBarracaPair();
         }
-
-        if (scenario == 2)
+        else if (currentScenario == 2)
         {
-            // Night: luzes
             SpawnLightPair();
         }
 
@@ -64,23 +85,23 @@ public class TreeSpawner : MonoBehaviour
     {
         if (treePrefab == null) return;
 
-        Instantiate(treePrefab, new Vector3(leftX, treeY, spawnZ), Quaternion.Euler(-90f, 0f, 0f));
-        Instantiate(treePrefab, new Vector3(rightX, treeY, spawnZ + 5f), Quaternion.Euler(-90f, 0f, 0f));
+        Instantiate(treePrefab, new Vector3(leftX, treeY, spawnZ), Quaternion.Euler(-90f, 0, 0), transform);
+        Instantiate(treePrefab, new Vector3(rightX, treeY, spawnZ + 7f), Quaternion.Euler(-90f, 0, 0), transform);
     }
 
     void SpawnBarracaPair()
     {
         if (barracaPrefab == null) return;
 
-        Instantiate(barracaPrefab, new Vector3(leftX, barracaY, spawnZ + 3f), Quaternion.identity);
-        Instantiate(barracaPrefab, new Vector3(rightX, barracaY, spawnZ + 7f), Quaternion.identity);
+        Instantiate(barracaPrefab, new Vector3(leftX, barracaY, spawnZ), Quaternion.Euler(-90f, 0, 0), transform);
+        Instantiate(barracaPrefab, new Vector3(rightX, barracaY, spawnZ + 7f), Quaternion.Euler(-90f, 0, 0), transform);
     }
 
     void SpawnLightPair()
     {
         if (lightPropPrefab == null) return;
 
-        Instantiate(lightPropPrefab, new Vector3(leftX, lightY, spawnZ + 3f), Quaternion.identity);
-        Instantiate(lightPropPrefab, new Vector3(rightX, lightY, spawnZ + 7f), Quaternion.identity);
+        Instantiate(lightPropPrefab, new Vector3(leftX, lightY, spawnZ), Quaternion.Euler(-90f, 0, 0), transform);
+        Instantiate(lightPropPrefab, new Vector3(rightX, lightY, spawnZ + 7f), Quaternion.Euler(-90f, 0, 0), transform);
     }
 }
